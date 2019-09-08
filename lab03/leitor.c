@@ -16,45 +16,45 @@ Leitor criar_leitor(const char* nome, int e)
 
 void desalocar_memoria(Leitor* leitor)
 {
-    free((*leitor).restituicoes);
-    free((*leitor).devolucoes);
+    free(leitor->restituicoes);
+    free(leitor->devolucoes);
 }
 
 const char* obter_nome(const Leitor* leitor)
 {
-    return (*leitor).nome;
+    return leitor->nome;
 }
 
 void registrar_restituicao(Leitor* leitor, int i) 
 {
-    int num = (*leitor).num_restituicoes;
-    (*leitor).restituicoes[num] = i;
-    (*leitor).num_restituicoes += 1;
+    int num = leitor->num_restituicoes;
+    leitor->restituicoes[num] = i;
+    leitor->num_restituicoes += 1;
 }
 
 void registrar_devolucao(Leitor* leitor, int i)
 {
-    int num = (*leitor).num_devolucoes;
-    (*leitor).devolucoes[num] = i;
-    (*leitor).num_devolucoes += 1;
+    int num = leitor->num_devolucoes;
+    leitor->devolucoes[num] = i;
+    leitor->num_devolucoes += 1;
 }
 
 const int* obter_restituicoes(const Leitor* leitor)
 {
-    return (*leitor).restituicoes;
+    return leitor->restituicoes;
 }
 
 const int* obter_devolucoes(const Leitor* leitor)
 {
-    return (*leitor).devolucoes;
+    return leitor->devolucoes;
 }
 
 int obter_num_restituicoes(const Leitor* leitor)
 {
-    return (*leitor).num_restituicoes;
+    return leitor->num_restituicoes;
 }
 
 int obter_num_devolucoes(const Leitor* leitor)
 {
-    return (*leitor).num_devolucoes;
+    return leitor->num_devolucoes;
 }

@@ -17,17 +17,20 @@ int main()
 
    int m, n;
    scanf("%d%d", &m, &n);
-   livros = malloc(m * sizeof(int*));
-   leitores = malloc(n * sizeof(int*));
+   livros = malloc(m * sizeof(Livro));
+   leitores = malloc(n * sizeof(Leitor));
 
    int i, j; // auxiliares
+   char string_data[11];
    // -------------------- criacao livros --------------------------
    for (i = 0; i < m; i++) {
+      scanf("%s", string_data);
       scanf(" %[^\n]", titulo);
-      Data data = criar_data( converte_data(titulo), 
-                              converte_data(titulo+3),
-                              converte_data(titulo + 6));
-      livros[i] = criar_livro(&titulo[11], data);
+      scanf("%*c");
+      Data data = criar_data( converte_data(string_data),
+                              converte_data(string_data+3),
+                              converte_ano(string_data + 6));
+      livros[i] = criar_livro(titulo, data);
    }
 
    // ------------------ criacao leitores -------------------------
@@ -43,11 +46,38 @@ int main()
          fazer_registro(&leitores[i], codigo);
       }
    }
-   
-   scanf(" %[^\n]", titulo); // faz leitura da data de consulta
+   scanf(" %[^\n]", string_data); // faz leitura da data de consulta
+   Data consulta = criar_data(converte_data(string_data),                 // lida junto ao titulo???? 
+                              converte_data(string_data+3),               // caso de bug, ler separadamente
+                              converte_ano(string_data + 6));
+   for (i = 0; i < n; i++) {
+      int num_livro;
+      int mostrar_nome = 0;
+      for (j = 0; j < obter_num_restituicoes(&leitores[i]); j++) {
+         num_livro = obter_restituicoes(&leitores[i])[j];
+         if (eh_menor_que(livros[num_livro - 1].emprestimo, consulta)) {
+            if (mostrar_nome == 0) {
+               printf("%s\n", obter_nome(&leitores[i]));
+               mostrar_nome = 1;
+            }
+            printf("Restituição: %s\n", livros[num_livro - 1].titulo);
+         }
+      }
+      for (j = 0; j < obter_num_devolucoes(&leitores[i]); j++) {
+         num_livro = obter_devolucoes(&leitores[i])[j];
+         if (eh_menor_que(livros[num_livro - 1].emprestimo, consulta)) {
+            if (mostrar_nome == 0) {
+               printf("%s\n", obter_nome(&leitores[i]));
+               mostrar_nome = 1;
+            }
+            printf("Devolução: %s\n", livros[num_livro - 1].titulo);
+         }        
+      }
+   }
 
    return 0;
 }
+
 
 void fazer_registro(Leitor* leitor, int i)
 {
@@ -57,18 +87,17 @@ void fazer_registro(Leitor* leitor, int i)
       registrar_restituicao(leitor, abs(i));
 }
 
-int converte_data(const char* data)
+int converte_data(const char* data) //converte as strings dia e mes para int
 {
    int a = ( (*data) - '0' ) * 10;
    int b = ( ( *(data + 1) ) - '0' );
    return a + b;
 }
-int converte_ano(const char* data)
+int converte_ano(const char* data) //converte a string ano para int
 {
    int a = (*data - '0' ) * 1000;
    int b = (*(data + 1) - '0' ) * 100;
    int c = (*(data + 2) - '0' ) * 10;
    int d = *(data + 3) - '0';
-
    return a+b+c+d;
 }
