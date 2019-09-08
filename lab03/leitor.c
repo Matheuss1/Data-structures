@@ -6,61 +6,55 @@ Leitor criar_leitor(const char* nome, int e)
 {
     Leitor leitor;
     strcpy(leitor.nome, nome);
-    
+    leitor.restituicoes = malloc(sizeof(int) * e);
+    leitor.devolucoes = malloc(sizeof(int) * e);
+    leitor.num_restituicoes = 0;
+    leitor.num_devolucoes = 0;
+
+    return leitor;
 }
 
 void desalocar_memoria(Leitor* leitor)
 {
-   /** ************************************************************************
-    *               ATENÇÃO: É preciso implementar esta função!               *
-    *********************************************************************** **/
+    free((*leitor).restituicoes);
+    free((*leitor).devolucoes);
 }
 
 const char* obter_nome(const Leitor* leitor)
 {
-   /** ************************************************************************
-    *               ATENÇÃO: É preciso implementar esta função!               *
-    *********************************************************************** **/
+    return (*leitor).nome;
 }
 
-void registrar_restituicao(Leitor* leitor, int i)
+void registrar_restituicao(Leitor* leitor, int i) 
 {
-   /** ************************************************************************
-    *               ATENÇÃO: É preciso implementar esta função!               *
-    *********************************************************************** **/
+    int num = (*leitor).num_restituicoes;
+    (*leitor).restituicoes[num] = i;
+    (*leitor).num_restituicoes += 1;
 }
 
 void registrar_devolucao(Leitor* leitor, int i)
 {
-   /** ************************************************************************
-    *               ATENÇÃO: É preciso implementar esta função!               *
-    *********************************************************************** **/
+    int num = (*leitor).num_devolucoes;
+    (*leitor).devolucoes[num] = i;
+    (*leitor).num_devolucoes += 1;
 }
 
 const int* obter_restituicoes(const Leitor* leitor)
 {
-   /** ************************************************************************
-    *               ATENÇÃO: É preciso implementar esta função!               *
-    *********************************************************************** **/
+    return (*leitor).restituicoes;
 }
 
 const int* obter_devolucoes(const Leitor* leitor)
 {
-   /** ************************************************************************
-    *               ATENÇÃO: É preciso implementar esta função!               *
-    *********************************************************************** **/
+    return (*leitor).devolucoes;
 }
 
 int obter_num_restituicoes(const Leitor* leitor)
 {
-   /** ************************************************************************
-    *               ATENÇÃO: É preciso implementar esta função!               *
-    *********************************************************************** **/
+    return (*leitor).num_restituicoes;
 }
 
 int obter_num_devolucoes(const Leitor* leitor)
 {
-   /** ************************************************************************
-    *               ATENÇÃO: É preciso implementar esta função!               *
-    *********************************************************************** **/
+    return (*leitor).num_devolucoes;
 }

@@ -19,5 +19,5 @@ int eh_nula(Data data)
 
 int eh_menor_que(Data data1, Data data2)
 {
-    // tem que implementar
+    return 0;
 }
