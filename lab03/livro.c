@@ -4,11 +4,7 @@
 Livro criar_livro(const char* titulo, Data emprestimo)
 {
     Livro livro;
-    int i;
-    for (i = 0; titulo[i] != '\0'; i++) {
-        livro.titulo[i] = titulo[i];
-    }
-    livro.titulo[i] = '\0';
+    strcpy(livro.titulo, titulo);
     livro.emprestimo = emprestimo;
     return livro;
 }

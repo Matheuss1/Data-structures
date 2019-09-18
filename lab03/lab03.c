@@ -53,8 +53,10 @@ int main()
       int mostrar_nome = 0;
       consultar_restituicoes(leitores, livros, i, consulta, &mostrar_nome);
       consultar_devolucoes(leitores, livros, i, consulta, &mostrar_nome);
+      desalocar_memoria(&leitores[i]);
    }
-
+   free(livros);
+   free(leitores);
    return 0;
 }
 
