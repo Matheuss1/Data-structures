@@ -10,9 +10,7 @@ char** sizeGrid(int m, int n)
 
     int i;
     for (i = 0; i < m; i++) {
-        maze[i] = malloc(n * sizeof(char));
-        if (maze[i] == NULL)
-            exit(1);
+        maze[i] = malloc( (n + 1) * sizeof(char));
     }
     return maze;
 }

@@ -14,13 +14,16 @@ int main()
    createGrid(maze, m);
 
    int j = find_entrance(maze, n);
-   int coords[2];
    
    int** visited = boolGrid(m, n);
+   int coords[2];
+   sword_finder(maze, visited, coords, m, n, 0, j, 0);
+   removeBool(visited, m);
 
-   path_finder(maze, coords, m, n, 0, j, 2, 'S', 0, visited);
-
-   printf("\n");
+   visited = boolGrid(m, n);
+   minotaur_finder(maze, visited, m, n, coords[0], coords[1], 0, 0);
+   removeBool(visited, m);
+   
    for (int i = 0; i < m; i++) {
       printf("%s\n", maze[i]);
    }
