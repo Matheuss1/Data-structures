@@ -2,25 +2,20 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
-
+#include "path_search.h"
 // TODO: PROBLEMA COM A VARIAVEL DE CONTROLE DE  MOVIMENTOS (move)
-int sword_finder(char** maze, int** visited, int coords[], int m, int n, int indexI, int indexJ, int aux)
+int sword_finder(char** maze, int coords[], int m, int n, int indexI, int indexJ, int aux, int d[4][2])
 {
-    int d[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}}; // moves directions
-
     for (int i = 0; i < 4; i++) {
-        if (indexI + d[i][0] > 0 && indexI + d[i][0] < m - 1 && indexJ + d[i][1] > 0 && indexJ + d[i][1] < n - 1 && visited[indexI + d[i][0]][indexJ + d[i][1]] == 0) {
-            if (maze[indexI + d[i][0]][indexJ + d[i][1]] != '#' && maze[indexI + d[i][0]][indexJ + d[i][1]] != 'M' && aux != 1) {
-                visited[indexI + d[i][0]][indexJ + d[i][1]] = 1;
-
+        if (indexI + d[i][0] > 0 && indexI + d[i][0] < m - 1 && indexJ + d[i][1] > 0 && indexJ + d[i][1] < n - 1) {
+            if (maze[indexI + d[i][0]][indexJ + d[i][1]] != '#' && maze[indexI + d[i][0]][indexJ + d[i][1]] != 'M' && aux != 1 && maze[indexI + d[i][0]][indexJ + d[i][1]] != '*') {
                 if (maze[indexI + d[i][0]][indexJ + d[i][1]] == 'S') {
                     coords[0] = indexI + d[i][0];
                     coords[1] = indexJ + d[i][1];
                     return 1;
                 }
-
                 maze[indexI + d[i][0]][indexJ + d[i][1]] = '*';
-                aux = sword_finder(maze, visited, coords, m, n, indexI + d[i][0], indexJ + d[i][1], aux);
+                aux = sword_finder(maze, coords, m, n, indexI + d[i][0], indexJ + d[i][1], aux, d);
             }
         }
     }
@@ -30,32 +25,22 @@ int sword_finder(char** maze, int** visited, int coords[], int m, int n, int ind
     return 0;
 }   
 
-int minotaur_finder(char** maze, int** visited, int m, int n, int indexI, int indexJ, int aux, int binary)
+int minotaur_finder(char** maze, int m, int n, int indexI, int indexJ, int aux, int d[4][2])
 {
-    int d[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
-
     for (int i = 0; i < 4; i++) {
-        if (indexI + d[i][0] > 0 && indexI + d[i][0] < m - 1 && indexJ + d[i][1] > 0 && indexJ + d[i][1] < n - 1 && maze[indexI + d[i][0]][indexJ + d[i][1]] != 'S' && visited[indexI + d[i][0]][indexJ + d[i][1]] == 0) {
-            if (maze[indexI + d[i][0]][indexJ + d[i][1]] != '#' && aux != 1) {
-                visited[indexI + d[i][0]][indexJ + d[i][1]] = 1;    // verificar se pode 'atravessar' o S
-
-                if (maze[indexI + d[i][0]][indexJ + d[i][1]] == 'M')
+        if (indexI + d[i][0] > 0 && indexI + d[i][0] < m - 1 && indexJ + d[i][1] > 0 && indexJ + d[i][1] < n - 1) {
+            if (maze[indexI + d[i][0]][indexJ + d[i][1]] != '#' && maze[indexI + d[i][0]][indexJ + d[i][1]] != 'S' && aux != 1 && maze[indexI + d[i][0]][indexJ + d[i][1]] != '*') {
+                if (maze[indexI + d[i][0]][indexJ + d[i][1]] == 'M') {
                     return 1;
-                
-                if (maze[indexI + d[i][0]][indexJ + d[i][1]] == '*') 
-                    binary = 1;
-                else
-                    binary = 0;
-            
+                }
                 maze[indexI + d[i][0]][indexJ + d[i][1]] = '*';
-                aux = minotaur_finder(maze, visited, m, n, indexI + d[i][0], indexJ + d[i][1], aux, binary);
+                aux = minotaur_finder(maze, m, n, indexI + d[i][0], indexJ + d[i][1], aux, d);
             }
         }
     }
     if (aux)
         return 1;
-    if (binary == 0)
-        maze[indexI][indexJ] = ' ';
+    maze[indexI][indexJ] = ' ';
     return 0;
 }   
 
