@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "lista.h"
 
+void printHeap(n_ptr list);
+
 int main()
 {
 	int i;
@@ -15,7 +17,7 @@ int main()
 
 	for (i = 0; i < m; i++) {
 		char operator;
-		scanf(" %c", &operator);   // TODO: Verificar se a leitura de dados está sendo feita corretamente
+		scanf(" %c", &operator);
 		switch (operator)
 		{
 		int adress, blockSize, newBlockSize;
@@ -31,7 +33,7 @@ int main()
 			scanf("%d%d", &adress, &blockSize);
 			memBlockDealloc(list, adress, blockSize);
 			break;
-
+	
 		// Realloc operation
 		case 'R':
 			scanf("%d%d%d", &adress, &blockSize, &newBlockSize);
@@ -39,9 +41,21 @@ int main()
 
 		// Print operation
 		case 'P':
+			printHeap(list);
 			break;
 
 		}
 	}
 	return EXIT_SUCCESS;
+}
+
+// Print the heap
+void printHeap(n_ptr list)
+{
+    n_ptr current;
+
+    for (current = list; current != NULL; current = current->next) {
+        printf("heap:\n");
+        printf("%d %d\n", current->index, current->freeMemory);
+    }
 }
