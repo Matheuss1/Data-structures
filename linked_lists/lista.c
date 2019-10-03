@@ -2,50 +2,53 @@
 #include <stdio.h>
 #include "lista.h"
 
+n_ptr sortFirstLink(n_ptr list);
 
-n_ptr new_list()
+n_ptr new_list(int heapSize)
 {
-    return NULL;
-}
-
-
-n_ptr push(n_ptr list, int index, int freeMemory)
-{
-    n_ptr new;
-    new = malloc(sizeof(Node));
-    
-    new->freeMemory = freeMemory;
-    new->index = index;
-    new->next = list;
-    new->prev = NULL;
-
-    if (list != NULL)
-        list->prev = new;
-        
-    return new;
+    n_ptr list;
+    list = malloc(sizeof(Node));
+    list->index = 0;
+    list->freeMemory = heapSize;
+    list->next = NULL;
+    list->prev = NULL;
+    return list;
 }
 
 
 n_ptr memBlockAlloc(n_ptr list, int size)
 {
     n_ptr current, temp;
-    temp = list;
-    for (current = list; current != NULL; current = current->next) {
-        if (current->freeMemory <= size) 
+    current = list;
+    temp = list; 
+    int aux = 0;
+
+    while(current != NULL) {
+        if (current->freeMemory >= size) {
+            if (!aux) {
+                temp = current;
+                aux = 1;
+            }
             if (current->freeMemory < temp->freeMemory)
                 temp = current;
+        }
+        current = current->next;
     }
-    
-    temp->freeMemory = temp->freeMemory - size;
-    
-    if (temp->freeMemory == 0) {
-        freeMemBlock(temp);
-        return list;
-    }
-    
-    temp->index = temp->index + size;
 
-    return list;
+    if (temp->freeMemory - size == 0) {
+        if (temp->next != NULL)
+            temp->next->prev = temp->prev;
+        if (temp->prev != NULL)
+            temp->prev->next = temp->next;
+        
+        free(temp);
+    }
+    else {
+        temp->index += size;
+        temp->freeMemory -= size;
+    }
+
+    return sortFirstLink(list);
 }
 
 
@@ -86,14 +89,26 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
         }
         
         if (current->index + current->freeMemory == adress) {
-            current->freeMemory += remotionSize;
-
-            if (current->next->index == current->index + current->freeMemory) {
+            if (current->next->index == adress) {
                 current->freeMemory += current->next->freeMemory;
-                current->next = current->next->next;
-                free(current->next->prev);
-                current->next->prev = current;
+                if (current->next->next == NULL) {
+                    free(current->next);
+                    current->next = NULL;
+                }
+                else {
+                    current->next = current->next->next;
+                    free(current->next->prev);
+                    current->next->prev = current;
+                }
             }
+        }
+        else {
+            new = malloc(sizeof(Node));
+            new->index = adress;
+            new->freeMemory = remotionSize;
+            new->next = current->next;
+            new->prev = current;
+            current->next = new;
         }
     }
 
@@ -101,14 +116,85 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
         current = current->prev;
     }
 
-    return current;
+    return sortFirstLink(list);
 }
 
-n_ptr memRealloc(n_ptr list, int currentBlockSize, int newBlockSize)
+
+//TODO: problemas de realocação que levam a valores errados do heap
+n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
 {
-    if (newBlockSize < currentBlockSize) {
-        
+
+    n_ptr current, new;
+    current = list;
+
+    while (1) {
+        if (current->next == NULL) {
+            break;
+        }
+        else if (current->next->index < adress) {
+            current = current->next;
+        }
+        else {
+            break;
+        }
     }
+    // TODO: existe possibilidade de realocar para um tamanho 0??
+    if (current->next == NULL) {
+        if (newBlockSize < currentBlockSize) {
+            new = malloc(sizeof(Node));
+            new->index = adress + newBlockSize;
+            new->freeMemory = currentBlockSize - newBlockSize;
+            new->next = NULL;
+            new->prev = current;
+        }
+        else {
+            if (current->index + current->freeMemory == adress) {
+                current->freeMemory += currentBlockSize;
+            }
+            else {
+                new = malloc(sizeof(Node));
+                new->index = adress;
+                new->freeMemory = currentBlockSize;
+                new->next = NULL;
+                new->prev = current;
+                current->next = new;
+
+                memBlockAlloc(list, newBlockSize);
+            }
+        }
+    }
+    else {
+        if (newBlockSize < currentBlockSize) {
+            if (adress + currentBlockSize == current->next->index) {
+                new = current->next;
+                new->index = adress + newBlockSize;
+                new->freeMemory += currentBlockSize - newBlockSize;
+            }
+            else {
+                new = malloc(sizeof(Node));
+                new->index = adress + newBlockSize;
+                new->freeMemory += currentBlockSize - newBlockSize;
+                new->next = current->next;
+                current->next->prev = new;
+                current->next = new;
+            }
+        }
+        else {
+            new = malloc(sizeof(Node));
+            new->index = adress;
+            new->freeMemory = currentBlockSize;
+            new->next = current->next;
+            new->prev = current;
+            current->next->prev = new;
+            current->next = new;
+
+            memBlockAlloc(list, newBlockSize);
+   
+        }
+    }
+
+    return sortFirstLink(list);
+
 }
 
 
@@ -118,4 +204,34 @@ void freeMemBlock(n_ptr node)
     node->prev->next = node->next;
     node->next->prev = node->prev;
     free(node);
+}
+
+
+n_ptr sortFirstLink(n_ptr list) {
+    if ( (list->next == NULL) || (list->next->index > list->index) )
+        return list;
+    
+    n_ptr current, temp, newList;
+    newList = list->next;
+    for (current = list; current != NULL; current = current->next) {
+        if (current->index < list->index) {
+            temp = current;
+        }
+    }
+
+    if (temp->next == NULL) {
+        list->next->prev = NULL;
+        list->prev = temp;
+        list->next = NULL;
+        temp->next = list;
+        return newList;
+    }
+
+
+    list->next->prev = NULL;
+    list->next = temp->next;
+    list->prev = temp;
+    temp->next = list;
+    list->next->prev = list;
+    return newList;
 }
