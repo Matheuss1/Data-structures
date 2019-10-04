@@ -18,7 +18,7 @@ n_ptr memBlockAlloc(n_ptr list, int size);
 
 n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize);
 
-n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize);
+n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize, int heapSize);
 
 void freeMemBlock(n_ptr node);
 

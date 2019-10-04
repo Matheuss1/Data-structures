@@ -24,7 +24,7 @@ int main()
 		// Alloc operation
 		case 'A':
 			scanf("%d", &blockSize);
-			list = memBlockAlloc(list, blockSize);
+			list = memBlockAlloc(list, blockSize, n);
 			break;
 
 		// Dealloc operation
@@ -36,7 +36,7 @@ int main()
 		// Realloc operation
 		case 'R':
 			scanf("%d%d%d", &adress, &blockSize, &newBlockSize);
-			list = memRealloc(list, adress, blockSize, newBlockSize);
+			list = memRealloc(list, adress, blockSize, newBlockSize, n);
 			break;
 
 		// Print operation
