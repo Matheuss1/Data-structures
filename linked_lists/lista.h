@@ -20,6 +20,8 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize);
 
 n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize);
 
-void freeMemBlock(n_ptr node);
+void removeList(n_ptr list);
+
+void validAlloc(n_ptr node);
 
 #endif

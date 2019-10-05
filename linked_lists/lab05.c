@@ -46,6 +46,8 @@ int main()
 
 		}
 	}
+
+	removeList(list);
 	return EXIT_SUCCESS;
 }
 

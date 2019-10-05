@@ -2,12 +2,14 @@
 #include <stdio.h>
 #include "lista.h"
 
-n_ptr sortFirstLink(n_ptr list);
+n_ptr currentReturn(n_ptr list, int adress);
+n_ptr originFinder(n_ptr node);
 
 n_ptr new_list(int heapSize)
 {
     n_ptr list;
     list = malloc(sizeof(Node));
+    validAlloc(list);
     list->index = 0;
     list->freeMemory = heapSize;
     list->next = NULL;
@@ -71,6 +73,7 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
 
     if (list == NULL) {
         new = malloc(sizeof(Node));
+        validAlloc(new);
         new->index = adress;
         new->freeMemory = remotionSize;
         new->next = NULL;
@@ -78,15 +81,7 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
         return new;
     }
 
-    current = list;
-    while(1) {
-        if (current->next == NULL)
-            break;
-        else if (current->next->index < adress)
-            current = current->next;
-        else
-            break;
-    }
+    current = currentReturn(list, adress);
 
     if ( (current->index) > adress ) {
         if ( (adress + remotionSize) == current->index) {
@@ -104,19 +99,11 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
                     new = current->prev;
                     free(current);
                     current = new;
-                    while (current->prev != NULL) {
-                        current = current->prev;
-                    }
 
-                    return current;
+                    return originFinder(current);
                 }
-                else {
-                    while (current->prev != NULL)
-                    {
-                        current = current->prev;
-                    }
-                    return current;
-                }
+                else
+                    return originFinder(current);
             }
 
             return current;
@@ -128,6 +115,7 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
                 current->prev->freeMemory += remotionSize;
             else {
                 new = malloc(sizeof(Node));
+                validAlloc(new);
                 new->index = adress;
                 new->next = current;
                 new->prev = current->prev;
@@ -135,13 +123,11 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
                 current->prev = new;
             }
 
-            while (current->prev != NULL) {
-                current = current->prev;
-            }
-            return current;
+            return originFinder(current);
         }
 
         new = malloc(sizeof(Node));
+        validAlloc(new);
         new->index = adress;
         new->freeMemory = remotionSize;
         new->next = current;
@@ -155,10 +141,7 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
             current->freeMemory += remotionSize;
 
             if (current->next == NULL) {            
-                while (current->prev != NULL) {
-                    current = current->prev;
-                }
-                return current;
+                return originFinder(current);
             }
 
             if ( (adress + remotionSize) == current->next->index ) {
@@ -174,16 +157,10 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
                     current->next->prev = current;
                 }
 
-                while (current->prev != NULL) {
-                    current = current->prev;
-                }
-                return current;
+                return originFinder(current);
             }
 
-            while (current->prev != NULL) {
-                current = current->prev;
-            }
-            return current;
+            return originFinder(current);
         }
 
         if (current->next != NULL) {
@@ -191,13 +168,11 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
                 current->next->index = adress;
                 current->next->freeMemory += remotionSize;
 
-                while (current->prev != NULL) {
-                    current = current->prev;
-                }
-                return current;
+                return originFinder(current);
             }
 
             new = malloc(sizeof(Node));
+            validAlloc(new);
             new->index = adress;
             new->freeMemory = remotionSize;
             new->next = current->next;
@@ -205,23 +180,18 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
             new->prev = current;
             current->next = new;
 
-            while (current->prev != NULL) {
-                current = current->prev;
-            }
-            return current;
+            return originFinder(current);
         }
 
         new = malloc(sizeof(Node));
+        validAlloc(new);
         new->index = adress;
         new->freeMemory = remotionSize;
         new->next = NULL;
         new->prev = current;
         current->next = new;
 
-        while (current->prev != NULL) {
-            current = current->prev;
-        }
-        return current;
+        return originFinder(current);
 
     }
 
@@ -241,22 +211,13 @@ n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
         return memBlockDealloc(list, adress + newBlockSize, currentBlockSize - newBlockSize);
     }
 
-    while (1) {
-        if (current->next == NULL) {
-            break;
-        }
-        else if (current->next->index < adress) {
-            current = current->next;
-        }
-        else {
-            break;
-        }
-    }
+    current = currentReturn(list, adress);
 
     if (current->index < adress) {
         if (current->next == NULL) {
             if (newBlockSize < currentBlockSize) {
                 new = malloc(sizeof(Node));
+                validAlloc(new);
                 new->index = adress + newBlockSize;
                 new->freeMemory = currentBlockSize - newBlockSize;
                 new->prev = current;
@@ -276,6 +237,7 @@ n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
                     return list;
                 }
                 new = malloc(sizeof(Node));
+                validAlloc(new);
                 new->index = adress + newBlockSize;
                 new->freeMemory = currentBlockSize - newBlockSize;
                 new->next = current->next;
@@ -297,21 +259,13 @@ n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
                     current->next = NULL;
                     free(new);
 
-                    while (current->prev != NULL)
-                    {
-                        current = current->prev;
-                    }
-                    return current;
+                    return originFinder(current);
                 }
 
                 current->next = new->next;
                 new->next->prev = current;
                 free(new);
-                while (current->prev != NULL)
-                {
-                    current = current->prev;
-                }
-                return current;
+                return originFinder(current);
             }
             
         }
@@ -325,6 +279,7 @@ n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
             }
 
             new = malloc(sizeof(Node));
+            validAlloc(new);
             new->index = adress + newBlockSize;
             new->next = current;
             new->freeMemory = currentBlockSize - newBlockSize;
@@ -336,21 +291,13 @@ n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
             }
             current->prev = new;
 
-            while (current->prev != NULL)
-            {
-                current = current->prev;
-            }
-            return current;
+            return originFinder(current);
         }
         if ((adress + currentBlockSize == current->index) && (currentBlockSize + current->freeMemory >= newBlockSize)) {
             if (currentBlockSize + current->freeMemory > newBlockSize) {
                 current->index = adress + newBlockSize;
                 current->freeMemory = current->freeMemory - (newBlockSize - currentBlockSize);
-                while (current->prev != NULL)
-                {
-                    current = current->prev;
-                }
-                return current;
+                return originFinder(current);
             }
             if (current->next == NULL) {
                 if (current->prev == NULL) {
@@ -361,11 +308,7 @@ n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
                 current->prev->next = NULL;
                 new = current->prev;
                 free(current);
-                while (new->prev != NULL)
-                {
-                    new = new->prev;
-                }
-                return new;
+                return originFinder(current);
             }
 
             if (current->prev == NULL) {
@@ -379,12 +322,7 @@ n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
             current->next->prev = current->prev;
             new = current->prev;
             free(current);
-            while (new->prev != NULL)
-            {
-                new = new->prev;
-            }
-            return new;
-
+            return originFinder(new);
         }
 
     }
@@ -394,9 +332,60 @@ n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
 }
 
 
-void freeMemBlock(n_ptr node)
+void removeList(n_ptr list)
 {
-    node->prev->next = node->next;
-    node->next->prev = node->prev;
-    free(node);
+    if (list == NULL)
+        return;
+
+    n_ptr current, temp;
+
+    current = list;
+    temp = list;
+
+    while (temp->next != NULL) {
+        current = temp;
+        temp = temp->next;
+        free(current);
+    }
+    free(temp);
+}
+
+void validAlloc(n_ptr node) 
+{
+    if (node == NULL) {
+        exit(1);
+    }
+    return;
+}
+
+
+n_ptr currentReturn(n_ptr list, int adress) 
+{
+    n_ptr current = list;
+
+    while (1) {
+        if (current->next == NULL) {
+            break;
+        }
+        else if (current->next->index < adress) {
+            current = current->next;
+        }
+        else {
+            return current;
+        }
+    }   
+
+    return current;
+}
+
+n_ptr originFinder(n_ptr node)
+{
+    n_ptr current = node;
+                        
+    while (current->prev != NULL) {
+        current = current->prev;
+    }
+
+    return current;
+
 }
