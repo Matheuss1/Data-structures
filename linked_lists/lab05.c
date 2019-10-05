@@ -24,7 +24,7 @@ int main()
 		// Alloc operation
 		case 'A':
 			scanf("%d", &blockSize);
-			list = memBlockAlloc(list, blockSize, n);
+			list = memBlockAlloc(list, blockSize);
 			break;
 
 		// Dealloc operation
@@ -36,7 +36,7 @@ int main()
 		// Realloc operation
 		case 'R':
 			scanf("%d%d%d", &adress, &blockSize, &newBlockSize);
-			list = memRealloc(list, adress, blockSize, newBlockSize, n);
+			list = memRealloc(list, adress, blockSize, newBlockSize);
 			break;
 
 		// Print operation
@@ -56,6 +56,7 @@ void printHeap(n_ptr list)
 
 	printf("heap:\n");
     for (current = list; current != NULL; current = current->next) {
+		if (current->index < 0|| current->freeMemory);
         printf("%d %d\n", current->index, current->freeMemory);
     }
 }

@@ -154,9 +154,7 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
         if ( (current->index + current->freeMemory) == adress ) {
             current->freeMemory += remotionSize;
 
-            if (current->next == NULL) {
-                current->freeMemory += remotionSize;
-            
+            if (current->next == NULL) {            
                 while (current->prev != NULL) {
                     current = current->prev;
                 }
@@ -232,11 +230,16 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
 
 
 //TODO: problemas de realocação que levam a valores errados do heap
-n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize, int heapSize)
+n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
 {
 
     n_ptr current, new;
     current = list;
+
+    // Can only realloc blocks < currentBlockSize
+    if (current == NULL) {
+        return memBlockDealloc(list, adress + newBlockSize, currentBlockSize - newBlockSize);
+    }
 
     while (1) {
         if (current->next == NULL) {
@@ -250,8 +253,143 @@ n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize,
         }
     }
 
-    if
+    if (current->index < adress) {
+        if (current->next == NULL) {
+            if (newBlockSize < currentBlockSize) {
+                new = malloc(sizeof(Node));
+                new->index = adress + newBlockSize;
+                new->freeMemory = currentBlockSize - newBlockSize;
+                new->prev = current;
+                new->next = NULL;
+                current->next = new;
 
+                return list;
+            }
+            list = memBlockDealloc(list, adress, currentBlockSize);
+            return memBlockAlloc(list, newBlockSize);
+        }
+        if (current->next != NULL) {
+            if (newBlockSize < currentBlockSize) {
+                if (adress + currentBlockSize == current->next->index) {
+                    current->next->index = adress + newBlockSize;
+                    current->next->freeMemory += currentBlockSize - newBlockSize;
+                    return list;
+                }
+                new = malloc(sizeof(Node));
+                new->index = adress + newBlockSize;
+                new->freeMemory = currentBlockSize - newBlockSize;
+                new->next = current->next;
+                new->next->prev = new;
+                current->next = new;
+                new->prev = current;
+
+                return list;
+            }
+            if ((adress + currentBlockSize == current->next->index) && (currentBlockSize + current->next->freeMemory >= newBlockSize)) {
+                if (currentBlockSize + current->next->freeMemory > newBlockSize) {
+                    current->next->index = adress + newBlockSize;
+                    current->next->freeMemory = current->next->freeMemory - (newBlockSize - currentBlockSize);
+                    
+                    return list;
+                }
+                new = current->next;
+                if (new->next == NULL) {
+                    current->next = NULL;
+                    free(new);
+
+                    while (current->prev != NULL)
+                    {
+                        current = current->prev;
+                    }
+                    return current;
+                }
+
+                current->next = new->next;
+                new->next->prev = current;
+                free(new);
+                while (current->prev != NULL)
+                {
+                    current = current->prev;
+                }
+                return current;
+            }
+            
+        }
+    }
+    if (current->index > adress) {
+        if (newBlockSize < currentBlockSize) {
+            if (adress + currentBlockSize == current->index) {
+                current->index = adress + newBlockSize;
+                current->freeMemory += currentBlockSize - newBlockSize;
+                return list;
+            }
+
+            new = malloc(sizeof(Node));
+            new->index = adress + newBlockSize;
+            new->next = current;
+            new->freeMemory = currentBlockSize - newBlockSize;
+            if (current->prev == NULL)
+                new->prev = NULL;
+            else {
+                new->prev = current->prev;
+                new->prev->next = new;
+            }
+            current->prev = new;
+
+            while (current->prev != NULL)
+            {
+                current = current->prev;
+            }
+            return current;
+        }
+        if ((adress + currentBlockSize == current->index) && (currentBlockSize + current->freeMemory >= newBlockSize)) {
+            if (currentBlockSize + current->freeMemory > newBlockSize) {
+                current->index = adress + newBlockSize;
+                current->freeMemory = current->freeMemory - (newBlockSize - currentBlockSize);
+                while (current->prev != NULL)
+                {
+                    current = current->prev;
+                }
+                return current;
+            }
+            if (current->next == NULL) {
+                if (current->prev == NULL) {
+                    free(current);
+                    return NULL;
+                }
+
+                current->prev->next = NULL;
+                new = current->prev;
+                free(current);
+                while (new->prev != NULL)
+                {
+                    new = new->prev;
+                }
+                return new;
+            }
+
+            if (current->prev == NULL) {
+                current->next->prev = NULL;
+                new = current->next;
+                free(current);
+                return new;
+            }
+
+            current->prev->next = current->next;
+            current->next->prev = current->prev;
+            new = current->prev;
+            free(current);
+            while (new->prev != NULL)
+            {
+                new = new->prev;
+            }
+            return new;
+
+        }
+
+    }
+    list = memBlockDealloc(list, adress, currentBlockSize);
+    return memBlockAlloc(list, newBlockSize);
 
 }
 
@@ -262,32 +400,3 @@ void freeMemBlock(n_ptr node)
     node->next->prev = node->prev;
     free(node);
 }
-
-
-// n_ptr sortFirstLink(n_ptr list) {
-//     if ( (list == NULL) || (list->next == NULL) || (list->next->index > list->index) )
-//         return list;
-    
-//     n_ptr current, temp, newList;
-//     newList = list->next;
-//     for (current = list; current != NULL; current = current->next) {
-//         if (current->index < list->index) {
-//             temp = current;
-//         }
-//     }
-
-//     if (temp->next == NULL) {
-//         list->next->prev = NULL;
-//         list->prev = temp;
-//         list->next = NULL;
-//         temp->next = list;
-//         return newList;
-//     }
-
-//     list->next->prev = NULL;
-//     list->next = temp->next;
-//     list->prev = temp;
-//     temp->next = list;
-//     list->next->prev = list;
-//     return newList;
-// }
