@@ -5,6 +5,9 @@
 n_ptr currentReturn(n_ptr list, int adress);
 n_ptr originFinder(n_ptr node);
 
+
+// All variables and expressions used here were wrote trying to explicitly shows the objective of
+// each block of code, reducing the number of comments and lines in this file
 n_ptr new_list(int heapSize)
 {
     n_ptr list;
@@ -25,6 +28,7 @@ n_ptr memBlockAlloc(n_ptr list, int size)
     temp = list; 
     int aux = 0;
 
+    // looks for the memory block that leftover the minimum memory after to be used
     while(current != NULL) {
         if (current->freeMemory >= size) {
             if (!aux) {
@@ -37,7 +41,10 @@ n_ptr memBlockAlloc(n_ptr list, int size)
         current = current->next;
     }
 
+    // Verifies if the allocation consumes all memory of the current free memory block
+    // if true, the block is deallocated
     if (temp->freeMemory - size == 0) {
+        // the two conditions verifies how to free the temp node
         if (temp == list) {
             if (temp->next == NULL) {
                 free(temp);
@@ -58,6 +65,7 @@ n_ptr memBlockAlloc(n_ptr list, int size)
                 free(temp);
         }
     }
+    // Resizes the memory block used and set the new index;
     else {
         temp->index += size;
         temp->freeMemory -= size;
@@ -71,6 +79,7 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
 {
     n_ptr new, current;
 
+    // Makes a valid alloc with the condition that list == NULL
     if (list == NULL) {
         new = malloc(sizeof(Node));
         validAlloc(new);
@@ -84,48 +93,15 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
     current = currentReturn(list, adress);
 
     if ( (current->index) > adress ) {
+        // case: when the deallocation makes a new block that can be "linked" with the next node in the list
         if ( (adress + remotionSize) == current->index) {
             current->index = adress;
             current->freeMemory += remotionSize;
 
-            if (current->prev != NULL) {
-                if ( (current->prev->index + current->prev->freeMemory) == adress) {
-                    current->prev->freeMemory += current->freeMemory;
-                    current->prev->next = current->next;
-
-                    if (current->next != NULL)
-                        current->next->prev = current->prev;
-                    
-                    new = current->prev;
-                    free(current);
-                    current = new;
-
-                    return originFinder(current);
-                }
-                else
-                    return originFinder(current);
-            }
-
             return current;
-
         }
         
-        if (current->prev != NULL) {
-            if ( (current->prev->index + current->prev->freeMemory) == adress )
-                current->prev->freeMemory += remotionSize;
-            else {
-                new = malloc(sizeof(Node));
-                validAlloc(new);
-                new->index = adress;
-                new->next = current;
-                new->prev = current->prev;
-                new->prev->next = new;
-                current->prev = new;
-            }
-
-            return originFinder(current);
-        }
-
+        // Creates a new node in the list with the size of memory that was deallocated
         new = malloc(sizeof(Node));
         validAlloc(new);
         new->index = adress;
@@ -137,16 +113,20 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
     }
 
     if ( (current->index) < adress ) {
+        // Verifies if the current node can store the freed memory
         if ( (current->index + current->freeMemory) == adress ) {
             current->freeMemory += remotionSize;
 
+            // Avoids to access invalid memory
             if (current->next == NULL) {            
                 return originFinder(current);
             }
 
+        // Verifies if the next node can be "linked" to the new freed memory block
             if ( (adress + remotionSize) == current->next->index ) {
                 current->freeMemory += current->next->freeMemory;
                 
+                // Frees the next node takng care to avoid segmentation fault error
                 if (current->next->next == NULL) {
                     free(current->next);
                     current->next = NULL;
@@ -164,6 +144,7 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
         }
 
         if (current->next != NULL) {
+            // Verifies if the next node can be "linked" to the memory freed block
             if ( (adress + remotionSize) == current->next->index) {
                 current->next->index = adress;
                 current->next->freeMemory += remotionSize;
@@ -171,6 +152,7 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
                 return originFinder(current);
             }
 
+            // Allocs the memory freed in a new list link
             new = malloc(sizeof(Node));
             validAlloc(new);
             new->index = adress;
@@ -183,6 +165,7 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
             return originFinder(current);
         }
 
+        // Allocs the memory freed in a new list link
         new = malloc(sizeof(Node));
         validAlloc(new);
         new->index = adress;
@@ -199,7 +182,6 @@ n_ptr memBlockDealloc(n_ptr list, int adress, int remotionSize)
 }
 
 
-//TODO: problemas de realocação que levam a valores errados do heap
 n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
 {
 
@@ -213,9 +195,14 @@ n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
 
     current = currentReturn(list, adress);
 
+    // The program does the operations based in the cases that the current node
+    // can be higher, less or equal to adress variable
+    // in the last case, 
     if (current->index < adress) {
+        // Avoids invalid memory access that leads to segmentation fault
         if (current->next == NULL) {
             if (newBlockSize < currentBlockSize) {
+                // Creates a new block in the list
                 new = malloc(sizeof(Node));
                 validAlloc(new);
                 new->index = adress + newBlockSize;
@@ -231,11 +218,13 @@ n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
         }
         if (current->next != NULL) {
             if (newBlockSize < currentBlockSize) {
+                // Resizes current->next memory block and set the new index
                 if (adress + currentBlockSize == current->next->index) {
                     current->next->index = adress + newBlockSize;
                     current->next->freeMemory += currentBlockSize - newBlockSize;
                     return list;
                 }
+                // Allocs a new node in the list with the remnant free memory
                 new = malloc(sizeof(Node));
                 validAlloc(new);
                 new->index = adress + newBlockSize;
@@ -247,6 +236,8 @@ n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
 
                 return list;
             }
+            // case: the current->next index is free and right in the front of the block that is being reallocated
+            // and if the next block memory can be used for the new allocation
             if ((adress + currentBlockSize == current->next->index) && (currentBlockSize + current->next->freeMemory >= newBlockSize)) {
                 if (currentBlockSize + current->next->freeMemory > newBlockSize) {
                     current->next->index = adress + newBlockSize;
@@ -254,7 +245,10 @@ n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
                     
                     return list;
                 }
+                // when the memory sum gave in the 'if' above it's equal to newBlocksize
+                // proceeds freeing the current->next memory
                 new = current->next;
+                // Avoids invalid memory access that leads to segmentation fault
                 if (new->next == NULL) {
                     current->next = NULL;
                     free(new);
@@ -272,12 +266,14 @@ n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
     }
     if (current->index > adress) {
         if (newBlockSize < currentBlockSize) {
+            // Resizes current memory block and set the new index
             if (adress + currentBlockSize == current->index) {
                 current->index = adress + newBlockSize;
                 current->freeMemory += currentBlockSize - newBlockSize;
                 return list;
             }
 
+            // if the above condition isn't satisfied, alloc a new block with the remnant free memory
             new = malloc(sizeof(Node));
             validAlloc(new);
             new->index = adress + newBlockSize;
@@ -293,12 +289,18 @@ n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
 
             return originFinder(current);
         }
+        // case: the current index is free and right in the front of the block that is being reallocated
+        // and if the current block memory can be used for the new allocation
         if ((adress + currentBlockSize == current->index) && (currentBlockSize + current->freeMemory >= newBlockSize)) {
             if (currentBlockSize + current->freeMemory > newBlockSize) {
                 current->index = adress + newBlockSize;
                 current->freeMemory = current->freeMemory - (newBlockSize - currentBlockSize);
                 return originFinder(current);
             }
+
+            // Proceeds in this way taking care of possible accesses in invalid memory
+            // Only executed when currentBlockSize + current->freeMemory == newBlockSize
+            // and deallocs the current block
             if (current->next == NULL) {
                 if (current->prev == NULL) {
                     free(current);
@@ -331,7 +333,7 @@ n_ptr memRealloc(n_ptr list, int adress, int currentBlockSize, int newBlockSize)
 
 }
 
-
+// Destructs list
 void removeList(n_ptr list)
 {
     if (list == NULL)
@@ -342,6 +344,7 @@ void removeList(n_ptr list)
     current = list;
     temp = list;
 
+    // Traverses the list setting free all nodes
     while (temp->next != NULL) {
         current = temp;
         temp = temp->next;
@@ -359,10 +362,13 @@ void validAlloc(n_ptr node)
 }
 
 
+// traverse the list looking for some node with the index < adress
+// Used just to reduce the number of lines in the code
 n_ptr currentReturn(n_ptr list, int adress) 
 {
     n_ptr current = list;
 
+    // Traverses list looking for a node that will be used in function that had called this function
     while (1) {
         if (current->next == NULL) {
             break;
@@ -378,6 +384,7 @@ n_ptr currentReturn(n_ptr list, int adress)
     return current;
 }
 
+// Traverses list looking for the first Node, leaving from the node passed in the function
 n_ptr originFinder(n_ptr node)
 {
     n_ptr current = node;
