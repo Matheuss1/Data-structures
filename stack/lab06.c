@@ -19,11 +19,15 @@ int main()
 	char digits[SIZE];
 	st_ptr greatestNumber = newStack();
 
+	// repeats m operations
 	for (i = 0; i < m; i++) {
 		scanf("%s %d", digits, &n);
+
 		removeDigit(digits, greatestNumber, n);
+
 		printStackReverse(greatestNumber);
 	}
+	// frees memory used to alloc the greatestNumber stack 
 	removeStack(greatestNumber);
 
 
@@ -43,7 +47,7 @@ void removeDigit(char digits[], st_ptr stack, int toBeRemoved)
 	if (strlen(digits) == toBeRemoved)
 		return;
 
-	// if there is not to be removed, we push all the remaining elements in the given array
+	// if there is nothing to be removed, we push to stack all remaining elements in the given array
 	if (toBeRemoved == 0) {
 		for (i = 0; i < strlen(digits); i++) {
 			push(stack, digits[i]);
@@ -51,13 +55,17 @@ void removeDigit(char digits[], st_ptr stack, int toBeRemoved)
 		return;
 	}
 
-
+	// traverse the array until certain index, lookin for the greatest number and put it index in a variable
 	for (i = 0; i < toBeRemoved + 1; i++) {
 		if ((digits[i] - '0') > greatestNumber) {
 			greatestNumber = digits[i] - '0';
 			index = i;
 		}
 	}
+
+	// if index of the greatest number it's equal to zero, we just continue to the next function call
+	// without count a remotion, otherwise we call the function remove digit again with the number of
+	// digits to be removed less the digits that came before the index
 	if (index == 0) {
 		push(stack, digits[0]);
 		removeDigit(&digits[1], stack, toBeRemoved);
@@ -69,6 +77,9 @@ void removeDigit(char digits[], st_ptr stack, int toBeRemoved)
 }
 
 
+// Push the items from an stack to a temp stack that starts from the greatest number to the lowest
+// while pop the items from the original stack that will be empty in the end
+
 void printStackReverse(st_ptr stack)
 {
 	st_ptr temp = newStack();
@@ -79,5 +90,6 @@ void printStackReverse(st_ptr stack)
 	while(!isEmpty(temp))
 		printf("%d", pop(temp) - '0');
 	printf("\n");
+
 	removeStack(temp);
 }

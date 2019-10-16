@@ -22,19 +22,19 @@ st_ptr newStack();
 // add item to stack
 void push(st_ptr stack, char number) ;
 
-// removes the item in the stack top
+// return the item in the stack top and remove it
 char pop(st_ptr stack);
 
-// just shows the stack top
+// returns the element in the stack top
 char top(st_ptr stack);
 
 // returns 1 if the stack is empty, otherwise returns 0
 int isEmpty(st_ptr stack);
 
-// clear stack without removing it
+// removes all the elements in stack
 void clearStack(st_ptr stack);
 
-// totally removes the stack
+// totally removes the stack and frees itself
 void removeStack(st_ptr stack);
 
 #endif
