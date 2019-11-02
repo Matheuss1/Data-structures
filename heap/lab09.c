@@ -13,7 +13,7 @@ int main()
       
       scanf("%d", &m);
       
-      p_pq pq = pqueue(m);
+      p_pq pq = medianHeap(m);
       p_box box;
       char temp[ID_SIZE];
 

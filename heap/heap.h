@@ -12,20 +12,26 @@ typedef Box* p_box;
 
 
 typedef struct {
-    p_box *boxesBatch;
-    int n, queueSize;
+    p_box *minHeap, *maxHeap;
+    int minSize, maxSize;
 } PQ;
 // priority queue pointer
 typedef PQ* p_pq;
 
-p_pq pqueue(int size);
+// Creates a heap that stores the boxes ID in a way that
+// the median of IDs can be found in linear time
+p_pq medianHeap(int size);
 
+// Adds a new box to the median heap
 void push(p_pq queue, p_box box);
 
+// Creates a newbox with its group and ID
 p_box newBox(char identification[], int group);
 
+// Returns the ID of the median box
 void median(p_pq queue);
 
+// Frees the memory used by medianHeap
 void heapDestruct(p_pq queue);
 
 #endif
