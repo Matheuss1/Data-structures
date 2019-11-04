@@ -19,14 +19,18 @@ p_pq medianHeap(int size)
 }
 
 
-// 
 void push(p_pq pq, p_box box)
 {   
+    // if the minHeap is empty, so we directly insert the new box in it
     if (pq->minSize == 0) {
         pq->minHeap[pq->minSize++] = box;
         return;
     }
 
+    // Compares if the new box has the id higher than the root of minHeap
+    // and also verifies if the min and max heaps have the same size, if true
+    // the box is add to minHeap, othewise the root of minHeap is extracted and inserted in the maxHeap
+    // after that, the new box is add to minHeap
     if (strcmp(box->id, pq->minHeap[0]->id) > 0) {
         if (pq->minSize - pq->maxSize > 0) {
             p_box temp = pop(pq, 1);
@@ -47,10 +51,12 @@ void push(p_pq pq, p_box box)
         return;
     }
 
+    // Adds the box to maxHeap
     pq->maxHeap[pq->maxSize] = box;
     pq->maxSize++;
     bottomUp(pq, pq->maxSize - 1, 2);
 
+    // If the maxHeap has more elements than minHeap, its root is extracted and inserted in the minHeap
     if (pq->maxSize - pq->minSize > 0) {
         p_box temp = pop(pq, 2);
         topDown(pq, 0, 2);
@@ -62,6 +68,7 @@ void push(p_pq pq, p_box box)
 }
 
 
+// Removes an item from the heap, returning a pointer for the item
 p_box pop(p_pq pq, int l)
 {
     if (l == 1) {
@@ -85,9 +92,11 @@ p_box pop(p_pq pq, int l)
 }
 
 
+// l is used to identify the heap that is being used in following functions, 1 if is the minHeap and 2 if maxHeap
+
 #define FATHER(i) ((i - 1 ) / 2)
 
-// l is used to identify the heap that is being used, 1 if is the minHeap and 2 if maxHeap
+// Puts the last add item in the heap in the right position, maintaining the heap properties
 void bottomUp(p_pq queue, int k, int l)
 {
     if (l == 1)
@@ -113,6 +122,9 @@ void bottomUp(p_pq queue, int k, int l)
  
 #define L_child(i) (2 * i + 1)
 
+// After an item be removed from the heap, the last child of the heap is putted in the heap beginning,
+// so, is need to traverse down the heap, swapping positions of other children in the tree until the node
+// that was placed in the first position be in the right place
 void topDown(p_pq pq, int k, int l)
 {
     int j;
@@ -126,6 +138,7 @@ void topDown(p_pq pq, int k, int l)
             if (strcmp(pq->minHeap[k]->id, pq->minHeap[j]->id) < 0)
                 break;
 
+            // swap the node in the k pos with j pos if the node in k pos has a high priority'
             p_box temp = pq->minHeap[k];
             pq->minHeap[k] = pq->minHeap[j];
             pq->minHeap[j] = temp;
@@ -142,6 +155,7 @@ void topDown(p_pq pq, int k, int l)
             if (strcmp(pq->maxHeap[k]->id, pq->maxHeap[j]->id) > 0)
                 break;
 
+            // swap the node in the k pos with j pos if the node in k pos has a low priority
             p_box temp = pq->maxHeap[k];
             pq->maxHeap[k] = pq->maxHeap[j];
             pq->maxHeap[j] = temp;
@@ -153,8 +167,11 @@ void topDown(p_pq pq, int k, int l)
 
 void median(p_pq pq)
 {
+    // if the heap has an even size, so the median are made of two boxes and the ids is printed, one id is the root 
+    // of the maxHeap and the other id is the root of minHeap
     if (pq->minSize == pq->maxSize)
         printf("%d %s %s\n", pq->maxHeap[0]->group, pq->maxHeap[0]->id, pq->minHeap[0]->id);
+    // otherwise, just print one id, located in the root of minHeap
     else
         printf("%d %s\n", pq->minHeap[0]->group, pq->minHeap[0]->id);
 }
