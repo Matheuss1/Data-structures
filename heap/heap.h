@@ -1,37 +1,31 @@
 #ifndef HEAP_H
 #define HEAP_H
 
-#define ID_SIZE 5
+#include "list.h"
 
 typedef struct {
-    char id[ID_SIZE];
-    int group;
-} Box;
-// box pointer
-typedef Box* p_box;
-
-
-typedef struct {
-    p_box *minHeap, *maxHeap;
-    int minSize, maxSize;
+    p_box *heap;
+    int heapSize;
 } PQ;
 // priority queue pointer
 typedef PQ* p_pq;
 
-// Creates a heap that stores the boxes ID in a way that
-// the median of IDs can be found in linear time
-p_pq medianHeap(int size);
+// Creates a heap of boxes and returns a pointer to it
+p_pq newHeap(int size);
 
-// Adds a new box to the median heap
-void push(p_pq queue, p_box box);
+// Adds a new box into the heap
+void push(p_pq pq, p_box box, int identifier);
 
-// Creates a newbox with its group and ID
-p_box newBox(char identification[], int group);
+// Removes the box in the heap top and returns its pointer
+p_box pop(p_pq pq, int identifier);
 
-// Returns the ID of the median box
-void median(p_pq queue);
+// Returns a pointer to the heap top
+p_box top(p_pq pq);
 
-// Frees the memory used by medianHeap
+// Returns the size heap size
+int getSize(p_pq pq);
+
+// Frees the memory used by the heap allocation
 void heapDestruct(p_pq queue);
 
 #endif
