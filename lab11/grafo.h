@@ -12,10 +12,8 @@ typedef Graph* p_graph;
 
 p_graph newGraph(int size);
 
-void addVertex(p_graph graph, int u, int v, int marker);
+void addVertex(p_graph graph, int v, int currentPos, char marker, char marker2);
 
 p_node getAdjacency(p_graph graph, int pos);
-
-p_node *getAdjList(p_graph graph);
 
 #endif

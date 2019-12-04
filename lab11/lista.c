@@ -7,17 +7,29 @@ p_node newList(int size)
     return NULL;
 }
 
-
-p_node pushList(p_node list, int pos, int marker)
+p_node newNode(int value, int marker, int marker2)
 {
     p_node node = malloc(sizeof(Node));
     if (node == NULL)
         exit(1);
-    node->visited = 0;
+
+    node->value = value;
+    node->marker = marker;
+    node->marker2 = marker2;
+
+    return node;
+}
+
+
+p_node pushList(p_node list, int pos, char marker, char marker2)
+{
+    p_node node = malloc(sizeof(Node));
+    if (node == NULL)
+        exit(1);
     node->value = pos;
-    node->counter = 9999999;
     node->next = list;
     node->marker = marker;
+    node->marker2 = marker2;
 
     return node;
 }
@@ -35,36 +47,15 @@ p_node nextPos(p_node iterator)
 }
 
 
-int isVisited(p_node node)
-{
-    if (node->visited == 1)
-        return 1;
-    
-    return 0;
-}
-
-
-void setAsVisited(p_node node)
-{
-    node->visited = 1;
-}
-
-
 int getNodeValue(p_node node)
 {
     return node->value;
 }
 
 
-void setCounter(p_node node, int value)
+int getMarker(p_node node)
 {
-    node->counter = value;
-}
-
-
-int counterValue(p_node node)
-{
-    return node->counter;
+    return node->marker;
 }
 
 

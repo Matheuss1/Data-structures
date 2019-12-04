@@ -1,9 +1,9 @@
-#include "queue.h"
+    #include "queue.h"
 
 p_queue newQueue(int queueSize)
 {
     p_queue queue = malloc(sizeof(Queue));
-    queue->list = calloc(queueSize, sizeof(Node));
+    queue->list = calloc(queueSize, sizeof(p_node));
     queue->n = queueSize;
     queue->size = 0;
     queue->begin = 0;
@@ -13,9 +13,9 @@ p_queue newQueue(int queueSize)
 }
 
 
-void push(p_queue queue, p_node node)
+void push(p_queue queue, p_node item)
 {
-    queue->list[queue->end] = node;
+    queue->list[queue->end] = item;
     queue->end = (queue->end + 1) % queue->n;
     queue->size++;
 }
@@ -23,11 +23,11 @@ void push(p_queue queue, p_node node)
 
 p_node pop(p_queue queue)
 {
-    p_node node = queue->list[queue->begin];
+    p_node item = queue->list[queue->begin];
     queue->begin = (queue->begin + 1) %  queue->n;
     queue->size--;
     
-    return node;
+    return item;
 }
 
 

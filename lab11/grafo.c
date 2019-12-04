@@ -21,12 +21,9 @@ p_graph newGraph(int n)
 }
 
 
-void addVertex(p_graph graph, int v, int currentPos, int marker)
+void addVertex(p_graph graph, int v, int currentPos, char marker, char marker2)
 {
-    if (v >= 0 && v < graph->size)
-        graph->adjList[currentPos] = pushList(graph->adjList[currentPos], v, marker);
-    else
-        graph->adjList[currentPos] = pushList(graph->adjList[currentPos], 0, marker);
+    graph->adjList[currentPos] = pushList(graph->adjList[currentPos], v, marker, marker2);
 }
 
 
@@ -34,17 +31,6 @@ p_node getAdjacency(p_graph graph, int pos)
 {
     p_node iterator = iterator_(graph->adjList, pos);
 
-    while (iterator != NULL && (getNodeValue(iterator) == pos || isVisited(iterator)) ) {
-        iterator = nextPos(iterator);
-    }
-
     return iterator;
 }
-
-
-p_node *getAdjList(p_graph graph)
-{
-    return graph->adjList;
-}
-
 

@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "lista.h"
 #include "grafo.h"
 #include "queue.h"
 
-int bfs(p_graph tower, int towerSize);
+p_node *bfs(p_graph tower, int towerSize);
 
 int main()
 {
@@ -20,93 +19,76 @@ int main()
 
       scanf("%d", &n);
 
-      p_graph tower = newGraph(n + 1);
+      p_graph tower = newGraph((n * 2) + 1);
+      p_node *parent;
 
-      int currentFloor = n;
+      int currentFloor = n * 2;
 
       for (j = 0; j < n; j++) {
-         scanf("%d%d%d%d", &x, &y, &z, &w);
+         scanf("%d%d%d%d", &x, &y, &w, &z);
 
          // Each vertex is inserted in the beginning of the linked list,
          // but to maintain the list in the sequence entered from input,
          // this vertexs are added from back to front in
-         addVertex(tower, currentFloor + w, currentFloor, 2);
-         addVertex(tower, currentFloor - z, currentFloor, 2);
-         addVertex(tower, currentFloor + y, currentFloor, 1);
-         addVertex(tower, currentFloor - x, currentFloor, 1);
+         addVertex(tower, currentFloor - 1, currentFloor, 'P', 'P');
+         if (y != 0)
+            addVertex(tower, currentFloor + y * 2, currentFloor, 'A', 'Y');
+         if (x != 0)
+            addVertex(tower, currentFloor - x * 2, currentFloor, 'A', 'X');
+      
+         addVertex(tower, currentFloor, currentFloor * 2 - 1, 'P', 'P');
+         if (z != 0)
+            addVertex(tower, currentFloor - 1 + z * 2, currentFloor - 1, 'B', 'Z');
+         if (w != 0)
+            addVertex(tower, currentFloor - 1 - w * 2, currentFloor - 1, 'B', 'W');
 
-         currentFloor--;
+         currentFloor -= 2;
       }
 
-      addVertex(tower, 0, 0, 0);
-      printf("%d\n", bfs(tower, n));
+      addVertex(tower, -1, 0, 0, 0);
+      parent = bfs(tower, n * 2 + 1);
+      parent[0]->marker2 = 'i';
    }
 
+   printf("a\n");
    return EXIT_SUCCESS;
 }
 
 
-int bfs(p_graph tower, int towerSize)
+p_node *bfs(p_graph tower, int towerSize)
 {
-   p_queue queue = newQueue(towerSize);
+   int size = towerSize + 1;
 
-   p_node vertex = getAdjacency(tower, towerSize);
+   p_node *parent = malloc(size * sizeof(p_node));
+   p_queue queue = newQueue(size);
 
-   while (vertex != NULL) {
-      setAsVisited(vertex);
-      setCounter(vertex, 1);
-      push(queue, vertex);
+   int *visited = malloc(size * sizeof(int));
 
-      vertex = getAdjacency(tower, towerSize);
-   }
+   parent[towerSize] = NULL;   // cuidado com o topo
+   visited[towerSize] = 1;
+
+   push(queue, pushList(NULL, towerSize, 'P', 'P'));
 
    while(!isEmpty(queue)) {
-      vertex = pop(queue);
-      p_node tempVertex = vertex;
-      
-      // setAsVisited(vertex);
+      p_node v = pop(queue);
+      p_node iterator = getAdjacency(tower, getNodeValue(v));
 
-      if (getNodeValue(vertex) == 0)
-         if (counterValue(vertex) < tower->adjList[0]->counter)
-            tower->adjList[0]->counter = counterValue(vertex);
+      while (iterator != NULL) {
+         int pos = getNodeValue(iterator);
+         if (!visited[pos]) {
+            parent[pos] = v;
+            visited[pos] = 1;
 
+            push(queue, iterator);
 
-
-      while(tempVertex != NULL) {
-         tempVertex = getAdjacency(tower, getNodeValue(vertex));
-         
-         if (tempVertex != NULL) {
-            if (tempVertex->marker == vertex->marker) {
-               if (counterValue(tempVertex) > counterValue(vertex) + 1) {
-                  setCounter(tempVertex, counterValue(vertex) + 1);
-                  push(queue, tempVertex);
-                  // setAsVisited(tempVertex);
-               }
-            }
-            else {
-               if (counterValue(tempVertex) > counterValue(vertex) + 2) {
-                  setCounter(tempVertex, counterValue(vertex) + 2);
-                  push(queue, tempVertex);
-                  // setAsVisited(tempVertex);
-               }               
-            }
+            if (getNodeValue(iterator) == -1)
+               return parent;
          }
-         // if (tempVertex != NULL)
+
+         iterator = nextPos(iterator);
       }
    }
 
-
-
-   p_node iterator = iterator_(getAdjList(tower), 0);
-
-   int minValue = counterValue(iterator);
-
-   while (iterator != NULL) {
-      if (counterValue(iterator) < minValue)
-         minValue = counterValue(iterator);
-      iterator = nextPos(iterator);
-   }
-
-   return minValue;
-
+   return parent;
 }
+
