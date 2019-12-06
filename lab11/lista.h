@@ -24,6 +24,8 @@ int getNodeValue(p_node node);
 
 int getMarker(p_node node);
 
+int getMarker2(p_node node);
+
 int isListEmpty(p_node list);
 
 #endif

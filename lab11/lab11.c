@@ -31,43 +31,65 @@ int main()
          // but to maintain the list in the sequence entered from input,
          // this vertexs are added from back to front in
          addVertex(tower, currentFloor - 1, currentFloor, 'P', 'P');
-         if (y != 0)
             addVertex(tower, currentFloor + y * 2, currentFloor, 'A', 'Y');
-         if (x != 0)
             addVertex(tower, currentFloor - x * 2, currentFloor, 'A', 'X');
       
-         addVertex(tower, currentFloor, currentFloor * 2 - 1, 'P', 'P');
-         if (z != 0)
             addVertex(tower, currentFloor - 1 + z * 2, currentFloor - 1, 'B', 'Z');
-         if (w != 0)
-            addVertex(tower, currentFloor - 1 - w * 2, currentFloor - 1, 'B', 'W');
+            if (currentFloor - 1 - w * 2 < 0)
+               addVertex(tower, currentFloor - w * 2, currentFloor - 1, 'B', 'W');
+            else
+               addVertex(tower, currentFloor - 1 - w * 2, currentFloor - 1, 'B', 'W');
+         addVertex(tower, currentFloor, currentFloor - 1, 'P', 'P');
 
          currentFloor -= 2;
       }
 
-      addVertex(tower, -1, 0, 0, 0);
+      addVertex(tower, 0, 0, 0, 0);
+
+      for (j = n * 2 ; j >= 0 ; j--) {
+         p_node a = tower->adjList[j];
+
+         while (a != NULL) {
+            printf(" %d %c %c  |  ", a->value, a->marker, a->marker2);
+
+            a = nextPos(a);
+         }
+         printf("\n");
+      }
+
+
       parent = bfs(tower, n * 2 + 1);
-      parent[0]->marker2 = 'i';
+
+      for (j = 0; parent[j] != NULL;) {
+         printf("%c %c a\n", parent[j]->marker, parent[j]->marker2);
+         j = parent[j]->value;
+      }
+
+      printf("\n");
+
+      for (j = 0; j < n * 2 + 1; j++) {
+         if (parent[j] == NULL)
+            printf("null -- ");
+         else
+            printf("%c %c -- ", parent[j]->marker, parent[j]->marker2);
+      }
+      printf("\n");
+      
    }
 
-   printf("a\n");
    return EXIT_SUCCESS;
 }
 
 
 p_node *bfs(p_graph tower, int towerSize)
 {
-   int size = towerSize + 1;
+   p_node *parent = calloc(towerSize, sizeof(p_node));
+   p_queue queue = newQueue(towerSize);
 
-   p_node *parent = malloc(size * sizeof(p_node));
-   p_queue queue = newQueue(size);
+   int *visited = calloc(towerSize, sizeof(int));
+   visited[towerSize - 1] = 1;
 
-   int *visited = malloc(size * sizeof(int));
-
-   parent[towerSize] = NULL;   // cuidado com o topo
-   visited[towerSize] = 1;
-
-   push(queue, pushList(NULL, towerSize, 'P', 'P'));
+   push(queue, pushList(NULL, towerSize - 1, 'P', 'P'));
 
    while(!isEmpty(queue)) {
       p_node v = pop(queue);
@@ -75,13 +97,20 @@ p_node *bfs(p_graph tower, int towerSize)
 
       while (iterator != NULL) {
          int pos = getNodeValue(iterator);
+
          if (!visited[pos]) {
-            parent[pos] = v;
+            if (getMarker(iterator) == 'P') {
+               push(queue, iterator);
+               iterator = nextPos(iterator);  
+               continue;       
+            }
+
             visited[pos] = 1;
+            parent[pos] = pushList(NULL, getNodeValue(v), getMarker(iterator), getMarker2(iterator));
 
             push(queue, iterator);
 
-            if (getNodeValue(iterator) == -1)
+            if (getNodeValue(iterator) == 0)
                return parent;
          }
 
@@ -91,4 +120,17 @@ p_node *bfs(p_graph tower, int towerSize)
 
    return parent;
 }
+
+
+21
+19
+15
+13
+11
+7 - 8
+8
+6
+4
+2
+0
 

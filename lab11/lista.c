@@ -7,19 +7,6 @@ p_node newList(int size)
     return NULL;
 }
 
-p_node newNode(int value, int marker, int marker2)
-{
-    p_node node = malloc(sizeof(Node));
-    if (node == NULL)
-        exit(1);
-
-    node->value = value;
-    node->marker = marker;
-    node->marker2 = marker2;
-
-    return node;
-}
-
 
 p_node pushList(p_node list, int pos, char marker, char marker2)
 {
@@ -58,6 +45,11 @@ int getMarker(p_node node)
     return node->marker;
 }
 
+
+int getMarker2(p_node node)
+{
+    return node->marker2;
+}
 
 int isListEmpty(p_node list)
 {
