@@ -46,35 +46,23 @@ int main()
 
       addVertex(tower, 0, 0, 0, 0);
 
-      for (j = n * 2 ; j >= 0 ; j--) {
-         p_node a = tower->adjList[j];
-
-         while (a != NULL) {
-            printf(" %d %c %c  |  ", a->value, a->marker, a->marker2);
-
-            a = nextPos(a);
-         }
-         printf("\n");
-      }
-
-
       parent = bfs(tower, n * 2 + 1);
 
+      p_node temp = newList(1);
+
+
       for (j = 0; parent[j] != NULL;) {
-         printf("%c %c a\n", parent[j]->marker, parent[j]->marker2);
+         temp = pushList(temp, parent[j]->value, parent[j]->marker, parent[j]->marker2);
          j = parent[j]->value;
+         
       }
 
-      printf("\n");
-
-      for (j = 0; j < n * 2 + 1; j++) {
-         if (parent[j] == NULL)
-            printf("null -- ");
-         else
-            printf("%c %c -- ", parent[j]->marker, parent[j]->marker2);
+      printf("Cenário #%d\n", i + 1);
+      while (temp != NULL) {
+         if (getMarker(temp) != 'P')
+            printf("%c %c\n", temp->marker, temp->marker2);
+         temp = temp->next;
       }
-      printf("\n");
-      
    }
 
    return EXIT_SUCCESS;
@@ -88,8 +76,10 @@ p_node *bfs(p_graph tower, int towerSize)
 
    int *visited = calloc(towerSize, sizeof(int));
    visited[towerSize - 1] = 1;
+   visited[towerSize - 2] = 1;
 
    push(queue, pushList(NULL, towerSize - 1, 'P', 'P'));
+   push(queue, pushList(NULL, towerSize - 2, 'P', 'P'));
 
    while(!isEmpty(queue)) {
       p_node v = pop(queue);
@@ -99,16 +89,16 @@ p_node *bfs(p_graph tower, int towerSize)
          int pos = getNodeValue(iterator);
 
          if (!visited[pos]) {
-            if (getMarker(iterator) == 'P') {
+            /*if (getMarker(iterator) == 'P') {
                push(queue, iterator);
                iterator = nextPos(iterator);  
                continue;       
-            }
+            }*/
 
-            visited[pos] = 1;
             parent[pos] = pushList(NULL, getNodeValue(v), getMarker(iterator), getMarker2(iterator));
 
             push(queue, iterator);
+            visited[pos] = 1;
 
             if (getNodeValue(iterator) == 0)
                return parent;
@@ -122,15 +112,15 @@ p_node *bfs(p_graph tower, int towerSize)
 }
 
 
-21
-19
-15
-13
-11
-7 - 8
-8
-6
-4
-2
-0
+// 21
+// 19
+// 15
+// 13
+// 11
+// 7 - 8
+// 8
+// 6
+// 4
+// 2
+// 0
 
