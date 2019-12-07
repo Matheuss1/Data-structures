@@ -8,6 +8,9 @@
 p_box newBox(char identification[], int group)
 {
     p_box newBox = malloc(sizeof(Box));
+    if (newBox == NULL)
+        exit(1);
+        
     strcpy(newBox->id, identification);
     newBox->group = group;
     return newBox;

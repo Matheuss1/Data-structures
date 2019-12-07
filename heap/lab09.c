@@ -19,7 +19,7 @@ int main()
       p_pq minHeap = newHeap(m);
       p_pq maxHeap = newHeap(m);
 
-      p_box box, tempBox;
+      p_box box;
       
       char temp[ID_SIZE];
 
@@ -40,9 +40,7 @@ int main()
          }
          else if ( strcmp( getId(box), getId( top(minHeap) ) ) > 0 ) {
             if (getSize(minHeap) - getSize(maxHeap) > 0) {
-               tempBox = pop(minHeap, 1);
-
-               push(maxHeap, tempBox, 2);
+               push(maxHeap, pop(minHeap, 1), 2);
                push(minHeap, box, 1);
             }
             else
@@ -55,9 +53,7 @@ int main()
             push(maxHeap, box, 2);
 
             if (getSize(maxHeap) - getSize(minHeap) > 0) {
-               tempBox = pop(maxHeap, 2);
-
-               push(minHeap, tempBox, 1);
+               push(minHeap, pop(maxHeap, 2), 1);
             }
          }
       //---------------------------------------------------------------------------------------------------------------------

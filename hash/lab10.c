@@ -54,7 +54,7 @@ int main()
 
       size = sizeOfPatterns[i];
 
-      // temp is used to read and store each substring of key
+      // temp is used to read and store each substring from key
       char *temp = malloc( (size + 1) * sizeof(char));
       if (temp == NULL)
          exit(1);
