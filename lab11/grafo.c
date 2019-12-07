@@ -34,3 +34,13 @@ p_node getAdjacency(p_graph graph, int pos)
     return iterator;
 }
 
+
+void removeGraph(p_graph graph)
+{
+    for (int i = 0; i < graph->size; i++) {
+        removeList(graph->adjList[i]);
+    }
+
+    free(graph->adjList);
+    free(graph);
+}

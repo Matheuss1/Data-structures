@@ -10,7 +10,7 @@ typedef struct Node {
 
 typedef Node* p_node;
 
-p_node newList(int size);
+p_node newList();
 
 p_node newNode(int value, int marker, int marker2);
 
@@ -27,5 +27,7 @@ int getMarker(p_node node);
 int getMarker2(p_node node);
 
 int isListEmpty(p_node list);
+
+void removeList(p_node list);
 
 #endif

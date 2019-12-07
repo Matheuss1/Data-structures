@@ -2,7 +2,7 @@
 #include "lista.h"
 
 
-p_node newList(int size)
+p_node newList()
 {
     return NULL;
 }
@@ -13,6 +13,7 @@ p_node pushList(p_node list, int pos, char marker, char marker2)
     p_node node = malloc(sizeof(Node));
     if (node == NULL)
         exit(1);
+        
     node->value = pos;
     node->next = list;
     node->marker = marker;
@@ -51,10 +52,13 @@ int getMarker2(p_node node)
     return node->marker2;
 }
 
-int isListEmpty(p_node list)
+
+void removeList(p_node list)
 {
-    if (list == NULL)
-        return 1;
-    
-    return 0;
+    while (list != NULL) {
+        p_node temp = list->next;
+        free(list);
+        list = temp;
+    }
 }
+

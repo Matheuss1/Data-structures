@@ -16,4 +16,6 @@ void addVertex(p_graph graph, int v, int currentPos, char marker, char marker2);
 
 p_node getAdjacency(p_graph graph, int pos);
 
+void removeGraph(p_graph graph);
+
 #endif
